@@ -12,6 +12,10 @@ interface Chat {
   online: boolean;
 }
 
+interface ChatListProps {
+  onChatSelect?: (chat: { name: string; avatar: string; online: boolean; type: "chat" | "channel" }) => void;
+}
+
 const mockChats: Chat[] = [
   { id: "1", name: "Анна Смирнова", lastMessage: "Привет! Как дела?", timestamp: "14:23", unread: 3, avatar: "АС", online: true },
   { id: "2", name: "Максим Петров", lastMessage: "Отправил файлы", timestamp: "13:45", unread: 0, avatar: "МП", online: true },
@@ -20,7 +24,7 @@ const mockChats: Chat[] = [
   { id: "5", name: "Dev Тусовка", lastMessage: "Кто на митап?", timestamp: "10:45", unread: 12, avatar: "ДТ", online: true },
 ];
 
-export default function ChatList() {
+export default function ChatList({ onChatSelect }: ChatListProps) {
   return (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b border-border">
@@ -32,6 +36,7 @@ export default function ChatList() {
           {mockChats.map((chat) => (
             <button
               key={chat.id}
+              onClick={() => onChatSelect?.({ name: chat.name, avatar: chat.avatar, online: chat.online, type: "chat" })}
               className="w-full p-3 rounded-lg hover:bg-muted transition-all duration-200 text-left group hover:neon-glow hover:border hover:border-primary/30"
             >
               <div className="flex items-center gap-3">

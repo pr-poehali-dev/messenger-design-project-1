@@ -13,6 +13,10 @@ interface Channel {
   category: string;
 }
 
+interface ChannelsListProps {
+  onChannelSelect?: (channel: { name: string; avatar: string; type: "chat" | "channel"; members: number }) => void;
+}
+
 const mockChannels: Channel[] = [
   { id: "1", name: "Веб-разработка", description: "Обсуждаем React, Vue, Angular", members: 1247, unread: 8, avatar: "💻", category: "Технологии" },
   { id: "2", name: "Дизайн UI/UX", description: "Figma, Sketch, тренды 2024", members: 892, unread: 0, avatar: "🎨", category: "Дизайн" },
@@ -21,7 +25,7 @@ const mockChannels: Channel[] = [
   { id: "5", name: "Фриланс и карьера", description: "Работа, проекты, советы", members: 654, unread: 0, avatar: "💼", category: "Карьера" },
 ];
 
-export default function ChannelsList() {
+export default function ChannelsList({ onChannelSelect }: ChannelsListProps) {
   return (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b border-border">
@@ -33,6 +37,7 @@ export default function ChannelsList() {
           {mockChannels.map((channel) => (
             <button
               key={channel.id}
+              onClick={() => onChannelSelect?.({ name: channel.name, avatar: channel.avatar, type: "channel", members: channel.members })}
               className="w-full p-4 rounded-lg bg-card hover:bg-muted transition-all duration-200 text-left border border-border hover:border-accent/50 hover:neon-glow group"
             >
               <div className="flex items-start gap-3">
