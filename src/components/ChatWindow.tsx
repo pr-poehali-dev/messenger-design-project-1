@@ -12,6 +12,7 @@ interface Message {
   timestamp: string;
   isOwn: boolean;
   avatar: string;
+  isRead?: boolean;
 }
 
 interface ChatWindowProps {
@@ -23,11 +24,13 @@ interface ChatWindowProps {
 }
 
 const mockMessages: Message[] = [
-  { id: "1", sender: "Анна Смирнова", content: "Привет! Как дела с проектом?", timestamp: "14:20", isOwn: false, avatar: "АС" },
-  { id: "2", sender: "Вы", content: "Отлично! Закончил дизайн мессенджера", timestamp: "14:21", isOwn: true, avatar: "ЮА" },
-  { id: "3", sender: "Анна Смирнова", content: "Супер! Покажешь?", timestamp: "14:21", isOwn: false, avatar: "АС" },
-  { id: "4", sender: "Вы", content: "Конечно, щас скину ссылку", timestamp: "14:22", isOwn: true, avatar: "ЮА" },
-  { id: "5", sender: "Анна Смирнова", content: "Жду! 🚀", timestamp: "14:22", isOwn: false, avatar: "АС" },
+  { id: "1", sender: "Анна Смирнова", content: "Привет! Как дела с проектом?", timestamp: "14:20", isOwn: false, avatar: "АС", isRead: true },
+  { id: "2", sender: "Вы", content: "Отлично! Закончил дизайн мессенджера", timestamp: "14:21", isOwn: true, avatar: "ЮА", isRead: true },
+  { id: "3", sender: "Анна Смирнова", content: "Супер! Покажешь?", timestamp: "14:21", isOwn: false, avatar: "АС", isRead: true },
+  { id: "4", sender: "Вы", content: "Конечно, щас скину ссылку", timestamp: "14:22", isOwn: true, avatar: "ЮА", isRead: true },
+  { id: "5", sender: "Анна Смирнова", content: "Жду! 🚀", timestamp: "14:22", isOwn: false, avatar: "АС", isRead: false },
+  { id: "6", sender: "Анна Смирнова", content: "А ещё хотела спросить про новые фичи", timestamp: "14:23", isOwn: false, avatar: "АС", isRead: false },
+  { id: "7", sender: "Анна Смирнова", content: "Будет поддержка голосовых?", timestamp: "14:23", isOwn: false, avatar: "АС", isRead: false },
 ];
 
 export default function ChatWindow({ name, avatar, online = false, type, members }: ChatWindowProps) {
@@ -85,39 +88,56 @@ export default function ChatWindow({ name, avatar, online = false, type, members
 
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4 max-w-4xl mx-auto">
-          {mockMessages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex gap-3 animate-fade-in ${msg.isOwn ? "flex-row-reverse" : ""}`}
-            >
-              <Avatar className="h-10 w-10 border-2 border-primary/30 flex-shrink-0">
-                <AvatarFallback className="bg-primary/20 text-primary font-medium text-sm">
-                  {msg.avatar}
-                </AvatarFallback>
-              </Avatar>
-              
-              <div className={`flex flex-col gap-1 max-w-md ${msg.isOwn ? "items-end" : ""}`}>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {msg.sender}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {msg.timestamp}
-                  </span>
-                </div>
+          {mockMessages.map((msg, index) => {
+            const isFirstUnread = !msg.isRead && (index === 0 || mockMessages[index - 1].isRead);
+            
+            return (
+              <div key={msg.id}>
+                {isFirstUnread && (
+                  <div className="relative flex items-center gap-3 my-6">
+                    <div className="flex-1 h-[2px] bg-gradient-to-r from-transparent via-accent to-accent neon-glow animate-pulse" />
+                    <span className="px-3 py-1 text-xs font-semibold bg-accent text-accent-foreground rounded-full neon-glow whitespace-nowrap">
+                      Новые сообщения
+                    </span>
+                    <div className="flex-1 h-[2px] bg-gradient-to-r from-accent via-accent to-transparent neon-glow animate-pulse" />
+                  </div>
+                )}
                 
-                <div
-                  className={`px-4 py-2 rounded-2xl ${
-                    msg.isOwn
-                      ? "bg-primary text-primary-foreground neon-glow"
-                      : "bg-card border border-border hover:border-primary/30"
-                  } transition-all duration-200`}
-                >
-                  <p className="text-sm">{msg.content}</p>
+                  <div
+                    className={`flex gap-3 animate-fade-in ${msg.isOwn ? "flex-row-reverse" : ""} ${!msg.isRead && !msg.isOwn ? "unread-message" : ""}`}
+                  >
+                    <Avatar className="h-10 w-10 border-2 border-primary/30 flex-shrink-0">
+                      <AvatarFallback className="bg-primary/20 text-primary font-medium text-sm">
+                        {msg.avatar}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    <div className={`flex flex-col gap-1 max-w-md ${msg.isOwn ? "items-end" : ""}`}>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-muted-foreground">
+                          {msg.sender}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {msg.timestamp}
+                        </span>
+                      </div>
+                      
+                      <div
+                        className={`px-4 py-2 rounded-2xl ${
+                          msg.isOwn
+                            ? "bg-primary text-primary-foreground neon-glow"
+                            : !msg.isRead
+                            ? "bg-accent/10 border-2 border-accent neon-glow"
+                            : "bg-card border border-border hover:border-primary/30"
+                        } transition-all duration-200`}
+                      >
+                        <p className="text-sm">{msg.content}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              );
+            })}
         </div>
       </ScrollArea>
 
